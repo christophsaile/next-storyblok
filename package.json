@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "pull-sb-components": "storyblok pull-components --space 307181",
+    "generate-sb-type": "storyblok generate-typescript-typedefs --sourceFilePaths ./components.307181.json --destinationFilePath ./component-types-sb.d.ts"
   },
   "dependencies": {
     "@storyblok/react": "^2.4.7",
