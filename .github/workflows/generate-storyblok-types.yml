@@ -1,0 +1,55 @@
+name: Install Node.js and Storyblok CLI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # Install Storyblok CLI
+      - name: Install Storyblok CLI
+        run: |
+          npm install -g storyblok-cli
+          storyblok -v # Verify installation
+
+      # Storyblok login using the PAT from an environment variable (GitHub Secret)
+      - name: Storyblok login
+        run: storyblok login --token ${{ secrets.STORYBLOK_PAT }} --region eu
+
+      # Pull Storyblok components
+      - name: pull-sb-components
+        run: storyblok pull-components --space 307181
+
+      # Generate TypeScript types
+      - name: generate-sb-type
+        run: storyblok generate-typescript-typedefs --sourceFilePaths ./components.307181.json --destinationFilePath ./component-types-sb.d.ts
+
+      # Configure git to use the GitHub token to push changes
+      - name: Set up Git for push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+      # Commit and push changes
+      - name: Push changes
+        run: |
+          git add .
+          git commit -m "Update Storyblok components and TypeScript types"
+          git push origin main
+        continue-on-error: true
