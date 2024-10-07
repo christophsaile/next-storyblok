@@ -13,25 +13,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
       # Install Storyblok CLI
       - name: Install Storyblok CLI
         run: |
           npm install -g storyblok-cli
 
-      # Storyblok login using the PAT from an environment variable (GitHub Secret)
-      - name: Storyblok login
-        run: storyblok login --token ${{ secrets.STORYBLOK_PAT }} --region eu
-
       # Pull Storyblok components
       - name: pull-sb-components
         run: storyblok pull-components --space 307181
+        env:
+          STORYBLOK_PERSONAL_ACCESS_TOKEN: ${{secrets.STORYBLOK_PAT}}
 
       # Generate TypeScript types
       - name: generate-sb-type
         run: storyblok generate-typescript-typedefs --sourceFilePaths ./components.307181.json --destinationFilePath ./component-types-sb.d.ts
+        env:
+          STORYBLOK_PERSONAL_ACCESS_TOKEN: ${{secrets.STORYBLOK_PAT}}
 
       # Configure git to use the GitHub token to push changes
       - name: Set up Git for push
