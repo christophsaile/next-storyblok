@@ -19,7 +19,7 @@ jobs:
       # Install Storyblok CLI
       - name: Install Storyblok CLI
         run: |
-          npm install -g storyblok
+          npm install -g storyblok@3
 
       # Storyblok login using the PAT from an environment variable (GitHub Secret)
       - name: Storyblok login
